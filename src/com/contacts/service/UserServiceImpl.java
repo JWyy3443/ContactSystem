@@ -10,9 +10,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean register(User user) {
-        // ¼ì²éÓÃ»§ÃûÊÇ·ñÒÑ´æÔÚ
+        // ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½
         if (userDao.findByUsername(user.getUsername()) != null) {
-            System.out.println("ÓÃ»§ÃûÒÑ´æÔÚ£¡");
+            System.out.println("ï¿½Ã»ï¿½ï¿½ï¿½ï¿½Ñ´ï¿½ï¿½Ú£ï¿½");
             return false;
         }
         return userDao.register(user);
@@ -30,15 +30,44 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User login(String username, String password) {
-        User user = userDao.findByUsername(username);
-        if (user != null && user.getPassword().equals(MD5Util.encrypt(password))) {
-            return user;
+        long startTime = System.currentTimeMillis();
+        System.out.println("=== Login attempt [" + startTime + "] ===");
+        System.out.println("Username: " + username);
+        
+        try {
+            User user = userDao.findByUsername(username);
+            System.out.println("Query completed in " + (System.currentTimeMillis() - startTime) + "ms");
+            
+            if (user != null) {
+                System.out.println("User found: " + user.getUsername() + ", ID: " + user.getId());
+                String inputHash = MD5Util.encrypt(password);
+                boolean passwordMatch = user.getPassword().equals(inputHash);
+                System.out.println("Password match: " + passwordMatch);
+                
+                if (passwordMatch) {
+                    System.out.println("Login SUCCESS");
+                    return user;
+                } else {
+                    System.out.println("Login FAILED - password mismatch");
+                }
+            } else {
+                System.out.println("Login FAILED - user not found");
+            }
+        } catch (Exception e) {
+            System.out.println("Login FAILED - exception: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+            e.printStackTrace();
         }
+        
+        System.out.println("=== Login attempt [" + startTime + "] ended ===");
         return null;
     }
 
     @Override
     public boolean isAdmin(User user) {
         return user != null && "admin".equals(user.getRole());
+    }
+    @Override
+    public User findById(int userId) {
+        return userDao.selectById(userId);
     }
 }

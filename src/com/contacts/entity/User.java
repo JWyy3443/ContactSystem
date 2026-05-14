@@ -1,7 +1,5 @@
 package com.contacts.entity;
 
-import java.time.LocalDateTime;
-
 public class User {
     private Integer id;
     private String username;
@@ -9,10 +7,10 @@ public class User {
     private String nickname;
     private String phone;
     private String email;
-    private String role;      // "user" »ò "admin"
-    private LocalDateTime regTime;
+    private String role;      // "user" or "admin"
+    private String regTime;
 
-    // ¹¹Ôì·½·¨
+    // ï¿½ï¿½ï¿½ì·½ï¿½ï¿½
     public User() {
     }
 
@@ -25,7 +23,7 @@ public class User {
         this.role = "user";
     }
 
-    // Getter ºÍ Setter£¨·â×°£©
+    // Getter ï¿½ï¿½ Setterï¿½ï¿½ï¿½ï¿½×°ï¿½ï¿½
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -47,13 +45,13 @@ public class User {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
-    public LocalDateTime getRegTime() { return regTime; }
-    public void setRegTime(LocalDateTime regTime) { this.regTime = regTime; }
+    public String getRegTime() { return regTime; }
+    public void setRegTime(String regTime) { this.regTime = regTime; }
 
     @Override
     public String toString() {
-        return "ID: " + id + ", ÓÃ»§Ãû: " + username + ", êÇ³Æ: " + nickname +
-                ", µç»°: " + phone + ", ÓÊÏä: " + email + ", ½ÇÉ«: " + role +
-                ", ×¢²áÊ±¼ä: " + regTime;
+        return "ID: " + id + ", ï¿½Ã»ï¿½ï¿½ï¿½: " + username + ", ï¿½Ç³ï¿½: " + nickname +
+                ", ï¿½ç»°: " + phone + ", ï¿½ï¿½ï¿½ï¿½: " + email + ", ï¿½ï¿½É«: " + role +
+                ", ×¢ï¿½ï¿½Ê±ï¿½ï¿½: " + regTime;
     }
 }

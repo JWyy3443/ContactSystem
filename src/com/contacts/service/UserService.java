@@ -8,4 +8,6 @@ public interface UserService {
     boolean deleteUser(int userId);
     User login(String username, String password);
     boolean isAdmin(User user);
+    User findById(int userId);
+
 }

@@ -7,7 +7,7 @@ import com.contacts.entity.User;
 import java.util.List;
 import java.util.Map;
 
-public class AdminServiceImpl implements AdminService {
+public  class AdminServiceImpl implements AdminService {
     private AdminDao adminDao = new AdminDaoImpl();
 
     @Override
@@ -31,4 +31,14 @@ public class AdminServiceImpl implements AdminService {
         }
         System.out.println("==================================\n");
     }
+    @Override
+    public int getTotalUserCount() {
+        return adminDao.getTotalUserCount();
+    }
+
+    @Override
+    public Map<String, Integer> getUserCountByRole() {
+        return adminDao.getUserCountByRole();
+    }
+
 }

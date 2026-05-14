@@ -13,15 +13,32 @@ public class UserDaoImpl implements UserDao {
     @Override
     public boolean register(User user) {
         String sql = "INSERT INTO t_user (username, password, nickname, phone, email) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        Connection conn = null;
+        try {
+            conn = DBUtil.getConnection();
+            conn.setAutoCommit(false); // æ‰‹åŠ¨æŽ§åˆ¶äº‹åŠ¡
+            
+            PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, user.getUsername());
-            ps.setString(2, MD5Util.encrypt(user.getPassword())); // ÃÜÂë¼ÓÃÜ
+            ps.setString(2, MD5Util.encrypt(user.getPassword()));
             ps.setString(3, user.getNickname());
             ps.setString(4, user.getPhone());
             ps.setString(5, user.getEmail());
-            return ps.executeUpdate() > 0;
+            
+            int result = ps.executeUpdate();
+            conn.commit(); // æ˜¾å¼æäº¤äº‹åŠ¡
+            
+            ps.close();
+            conn.close();
+            return result > 0;
         } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback(); // å›žæ»šäº‹åŠ¡
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
             e.printStackTrace();
             return false;
         }
@@ -62,25 +79,28 @@ public class UserDaoImpl implements UserDao {
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return extractUserFromResultSet(rs);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return extractUserFromResultSet(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
-
     @Override
-    public User findById(int id) {
-        String sql = "SELECT * FROM t_user WHERE id=?";
-        try (Connection conn = DBUtil.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                return extractUserFromResultSet(rs);
+    public User selectById(int id) {
+        String sql = "SELECT * FROM t_user WHERE id = ?";
+        try (
+                Connection conn = DBUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return extractUserFromResultSet(rs);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -92,15 +112,33 @@ public class UserDaoImpl implements UserDao {
         User user = new User();
         user.setId(rs.getInt("id"));
         user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("password")); // ÃÜÎÄ
+        user.setPassword(rs.getString("password")); // password
         user.setNickname(rs.getString("nickname"));
         user.setPhone(rs.getString("phone"));
         user.setEmail(rs.getString("email"));
         user.setRole(rs.getString("role"));
         Timestamp ts = rs.getTimestamp("reg_time");
         if (ts != null) {
-            user.setRegTime(ts.toLocalDateTime());
+            user.setRegTime(ts.toString());
         }
         return user;
+    }
+    @Override
+    public User findById(int id) {
+        String sql = "SELECT * FROM t_user WHERE id = ?";
+        try (
+                Connection conn = DBUtil.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
+            pstmt.setInt(1, id);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return extractUserFromResultSet(rs);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

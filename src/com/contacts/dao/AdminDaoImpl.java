@@ -36,9 +36,10 @@ public class AdminDaoImpl implements AdminDao {
             String like = "%" + keyword + "%";
             ps.setString(1, like);
             ps.setString(2, like);
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                users.add(extractUser(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    users.add(extractUser(rs));
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -87,7 +88,7 @@ public class AdminDaoImpl implements AdminDao {
         u.setEmail(rs.getString("email"));
         u.setRole(rs.getString("role"));
         Timestamp ts = rs.getTimestamp("reg_time");
-        if (ts != null) u.setRegTime(ts.toLocalDateTime());
+        if (ts != null) u.setRegTime(ts.toString());
         return u;
     }
 }
